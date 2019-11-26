@@ -14,6 +14,6 @@ func TestDmxSyncer(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "localhost", syncInfo.URL)
 	assert.Equal(t, "iframe", syncInfo.Type)
-	assert.EqualValues(t, 0, syncer.GDPRVendorID())
+	assert.EqualValues(t, 144, syncer.GDPRVendorID())
 	assert.Equal(t, false, syncInfo.SupportCORS)
 }

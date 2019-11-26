@@ -1,12 +1,13 @@
 package dmx
 
 import (
-	"github.com/prebid/prebid-server/errortypes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/prebid/prebid-server/errortypes"
 
 	"github.com/mxmCherry/openrtb"
 	"github.com/prebid/prebid-server/adapters"
@@ -15,7 +16,8 @@ import (
 
 const Seat = "dmx"
 const RequestSize = 5
-const endpoint = "https://dmx.districtm.io/b/v2"
+
+var endpoint = "https://dmx.districtm.io/b/v2"
 
 type DmxAdapter struct {
 }
@@ -85,20 +87,20 @@ type dmxBannerRequest struct {
 }
 
 type dmxResponse struct {
-	ID string `json:"id"`
-	ImpID string `json:"impid"`
-	Price float64 `json:"price"`
-	NUrl string		`json:"nurl,omitempty"`
-	BUrl string 	`json:"burl,omitempty"`
-	Adm string `json:"adm"`
-	H uint64 `json:"h"`
-	W uint64 `json:"w"`
+	ID      string   `json:"id"`
+	ImpID   string   `json:"impid"`
+	Price   float64  `json:"price"`
+	NUrl    string   `json:"nurl,omitempty"`
+	BUrl    string   `json:"burl,omitempty"`
+	Adm     string   `json:"adm"`
+	H       uint64   `json:"h"`
+	W       uint64   `json:"w"`
 	ADomain []string `json:"adomain"`
-	Bundle string `json:"bundle,omitempty"`
-	IUrl string `json:"iurl,omitempty"`
-	Cid string `json:"cid"`
-	Crid string `json:"crid"`
-	Cat []string `json:"cat,omitempty"` 
+	Bundle  string   `json:"bundle,omitempty"`
+	IUrl    string   `json:"iurl,omitempty"`
+	Cid     string   `json:"cid"`
+	Crid    string   `json:"crid"`
+	Cat     []string `json:"cat,omitempty"`
 }
 
 func (dmx *DmxAdapter) MakeRequests(request *openrtb.BidRequest, reqData *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
@@ -133,15 +135,15 @@ func (dmx *DmxAdapter) MakeBids(internalRequest *openrtb.BidRequest, externalReq
 
 	if response.StatusCode == http.StatusBadRequest {
 		return nil, []error{&errortypes.BadInput{
-			Message: fmt.Sprintf("Unexpected status code %d. Run with request.debug for more info", response.StatusCOde)
+			Message: fmt.Sprintf("Unexpected status code %d. Run with request.debug for more info", response.StatusCode),
 		}}
 	}
 
-	if response.StatusCode != http.StatusOk {
-		return nil, []error{fmt.Errorf("Unexpected status code %d. Run with request.debug for more info", response.StatusCOde)}
+	if response.StatusCode != http.StatusOK {
+		return nil, []error{fmt.Errorf("Unexpected status code %d. Run with request.debug for more info", response.StatusCode)}
 	}
 
-	var bidResp = openrtb.BidResponse
+	var bidResp openrtb.BidResponse
 	if err := json.Unmarshal(response.Body, &bidResp); err != nil {
 		return nil, []error{err}
 	}
@@ -150,12 +152,14 @@ func (dmx *DmxAdapter) MakeBids(internalRequest *openrtb.BidRequest, externalReq
 	resData := adapters.NewBidderResponseWithBidsCapacity(5)
 
 	for _, bid := range bidResp.SeatBid {
-		for i:= 0; i < len(bid.Bid); i++ {
+		for i := 0; i < len(bid.Bid); i++ {
 			b := bid.Bid[i]
-			var bidExt 
+			//var bidExt dmxResponse
+			resData.Bids = append(resData.Bids, &adapters.TypedBid{
+				Bid: &b,
+			})
 		}
 	}
-
 
 	return resData, errs
 }
