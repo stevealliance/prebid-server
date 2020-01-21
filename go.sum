@@ -59,8 +59,14 @@ github.com/mitchellh/mapstructure v1.0.0 h1:vVpGvMXJPqSDh2VYHF7gsfQj8Ncx+Xw5Y1KH
 github.com/mitchellh/mapstructure v1.0.0/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mssola/user_agent v0.4.1 h1:iTUaMpVrb2qWyvUw8UvK3ygWMd2lB1NGuZ1xhpBf1eg=
 github.com/mssola/user_agent v0.4.1/go.mod h1:UFiKPVaShrJGW93n4uo8dpPdg1BSVpw2P9bneo0Mtp8=
+github.com/mxmCherry/openrtb v9.0.0+incompatible/go.mod h1:zpnz6Au3bzTGplpRU0kvFPNT6g4ROAKx/GkrslFDwZk=
+github.com/mxmCherry/openrtb v9.2.0+incompatible h1:BR1v1DxCuv1AF1uaE9qLrLu+Y+J0ZTDZnzCAfnCVPUs=
+github.com/mxmCherry/openrtb v9.2.0+incompatible/go.mod h1:zpnz6Au3bzTGplpRU0kvFPNT6g4ROAKx/GkrslFDwZk=
 github.com/mxmCherry/openrtb v11.0.0+incompatible h1:tNzh7vKwQ8lopBAadyN3QPryawXSaVXYWi1IVluXHiM=
 github.com/mxmCherry/openrtb v11.0.0+incompatible/go.mod h1:zpnz6Au3bzTGplpRU0kvFPNT6g4ROAKx/GkrslFDwZk=
+github.com/mxmCherry/openrtb v12.0.0+incompatible/go.mod h1:zpnz6Au3bzTGplpRU0kvFPNT6g4ROAKx/GkrslFDwZk=
+github.com/mxmCherry/openrtb v13.0.0+incompatible h1:KEnUHAJFovM54lcicyjiJgZZ4mWKNw+h0GOJXWOoJ4A=
+github.com/mxmCherry/openrtb v13.0.0+incompatible/go.mod h1:zpnz6Au3bzTGplpRU0kvFPNT6g4ROAKx/GkrslFDwZk=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.10.1 h1:q/mM8GF/n0shIN8SaAZ0V+jnLPzen6WIVZdiwrRlMlo=
 github.com/onsi/ginkgo v1.10.1/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

@@ -1,17 +1,15 @@
 package dmx
 
 import (
-	"github.com/prebid/prebid-server/errortypes"
-	"github.com/prebid/prebid-server/openrtb_ext"
-	"net/http"
 	"encoding/json"
 	"fmt"
 	"github.com/mxmCherry/openrtb"
 	"github.com/prebid/prebid-server/adapters"
+	"github.com/prebid/prebid-server/errortypes"
+	"github.com/prebid/prebid-server/openrtb_ext"
+	"net/http"
 	"sort"
 )
-
-
 
 type DmxAdapter struct {
 	endpoint string
@@ -26,7 +24,7 @@ type dmxBidder struct {
 }
 
 type dmxExt struct {
-	TagId string `json:"tagid,omitempty"`
+	TagId    string `json:"tagid,omitempty"`
 	MemberId string `json:"memberid,omitempty"`
 }
 
@@ -39,7 +37,6 @@ type dmxSize struct {
 	H uint64
 	S uint64
 }
-
 
 type DmxSize []dmxSize
 
@@ -68,16 +65,15 @@ func Remove(toBeRemove []openrtb.Format, a DmxSize) (dmx DmxSize) {
 }
 
 var CheckTopSizes = []dmxSize{
-	{300, 250, 100,},
-	{728, 90, 95,},
-	{320, 50, 90,},
-	{160, 600, 88,},
-	{300, 600, 85,},
-	{300, 50, 80,},
-	{970, 250, 75,},
-	{970, 90, 70,},
+	{300, 250, 100},
+	{728, 90, 95},
+	{320, 50, 90},
+	{160, 600, 88},
+	{300, 600, 85},
+	{300, 50, 80},
+	{970, 250, 75},
+	{970, 90, 70},
 }
-
 
 func (adapter *DmxAdapter) MakeRequests(request *openrtb.BidRequest, req *adapters.ExtraRequestInfo) (reqsBidder []*adapters.RequestData, errs []error) {
 	var dmxImp dmxBidder
@@ -86,17 +82,16 @@ func (adapter *DmxAdapter) MakeRequests(request *openrtb.BidRequest, req *adapte
 		errs = append(errs, err)
 	}
 
-
 	for _, inst := range request.Imp {
 		var banner openrtb.Banner
 		var ins openrtb.Imp
 		//for _, insbanner := range inst.Banner.Format {
 		banner = openrtb.Banner{
-			W: &inst.Banner.Format[0].W,
-			H: &inst.Banner.Format[0].H,
+			W:      &inst.Banner.Format[0].W,
+			H:      &inst.Banner.Format[0].H,
 			Format: inst.Banner.Format,
 		}
-		nSize := Remove(inst.Banner.Format, CheckTopSizes);
+		nSize := Remove(inst.Banner.Format, CheckTopSizes)
 		sort.Sort(DmxSize(nSize))
 		if inst.Banner.Format[0].W != 0 {
 			banner.W = &nSize[0].W
@@ -108,10 +103,10 @@ func (adapter *DmxAdapter) MakeRequests(request *openrtb.BidRequest, req *adapte
 		var intVal int8
 		intVal = 1
 		ins = openrtb.Imp{
-			TagID: dmxImp.Bidder.TagId,
-			ID: inst.ID,
+			TagID:  dmxImp.Bidder.TagId,
+			ID:     inst.ID,
 			Banner: &banner,
-			Ext: inst.Ext,
+			Ext:    inst.Ext,
 			Secure: &intVal,
 		}
 		imps = append(imps, ins)
@@ -120,14 +115,14 @@ func (adapter *DmxAdapter) MakeRequests(request *openrtb.BidRequest, req *adapte
 
 	request.Imp = imps
 
-	request.Site.Publisher = &openrtb.Publisher{ ID: dmxImp.Bidder.MemberId,}
+	request.Site.Publisher = &openrtb.Publisher{ID: dmxImp.Bidder.MemberId}
 	oJson, _ := json.Marshal(request)
 	headers := http.Header{}
 	headers.Add("Content-Type", "Application/json;charset=utf-8")
 	reqBidder := &adapters.RequestData{
-		Method: "POST",
-		Uri: "http://demo.arrepiblik.com/dmx2",//adapter.endpoint,
-		Body: oJson,
+		Method:  "POST",
+		Uri:     "https://dmx-direct.districtm.io/b/v2", //adapter.endpoint,
+		Body:    oJson,
 		Headers: headers,
 	}
 
