@@ -3,6 +3,7 @@ package endpoints
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,6 +37,7 @@ func NewSetUIDEndpoint(cfg config.HostCookie, perms gdpr.Permissions, pbsanalyti
 		defer pbsanalytics.LogSetUIDObject(&so)
 
 		pc := usersync.ParsePBSCookieFromRequest(r, &cfg)
+		fmt.Println(pc)
 		if !pc.AllowSyncs() {
 			w.WriteHeader(http.StatusUnauthorized)
 			metrics.RecordUserIDSet(pbsmetrics.UserLabels{Action: pbsmetrics.RequestActionOptOut})
@@ -45,6 +47,8 @@ func NewSetUIDEndpoint(cfg config.HostCookie, perms gdpr.Permissions, pbsanalyti
 
 		query := r.URL.Query()
 		bidder := query.Get("bidder")
+		fmt.Println(query.Get("uid"))
+		fmt.Println(query.Get("bidder"))
 		if shouldReturn, status, body := preventSyncsGDPR(query.Get("gdpr"), query.Get("gdpr_consent"), perms); shouldReturn {
 			w.WriteHeader(status)
 			w.Write([]byte(body))
@@ -86,8 +90,12 @@ func NewSetUIDEndpoint(cfg config.HostCookie, perms gdpr.Permissions, pbsanalyti
 			metrics.RecordUserIDSet(labels)
 			so.Success = true
 		}
+		fmt.Println("call off")
 
 		setSiteCookie := siteCookieCheck(r.UserAgent())
+		fmt.Println(setSiteCookie)
+		fmt.Println(so)
+
 		pc.SetCookieOnResponse(w, setSiteCookie, &cfg, cookieTTL)
 	})
 }

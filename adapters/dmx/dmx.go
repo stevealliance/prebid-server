@@ -2,30 +2,49 @@ package dmx
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/mxmCherry/openrtb"
 	"github.com/prebid/prebid-server/adapters"
 	"github.com/prebid/prebid-server/errortypes"
 	"github.com/prebid/prebid-server/openrtb_ext"
+	"github.com/prebid/prebid-server/pbs"
 	"net/http"
 	"sort"
 )
 
 type DmxAdapter struct {
-	endpoint string
+	endpoint    string
+	publisherId string
 }
 
-func NewDmxBidder(endpoint string) *DmxAdapter {
-	return &DmxAdapter{endpoint: endpoint}
+func New(text string) error {
+	return &errorString{text}
+}
+
+// errorString is a trivial implementation of error.
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
+}
+
+func NewDmxBidder(endpoint string, publisher_id string) *DmxAdapter {
+	return &DmxAdapter{endpoint: endpoint, publisherId: publisher_id}
 }
 
 type dmxBidder struct {
 	Bidder dmxExt `json:"bidder"`
 }
 
+type dmxUser struct {
+	User *openrtb.User `json:"user"`
+}
+
 type dmxExt struct {
-	TagId    string `json:"tagid,omitempty"`
-	MemberId string `json:"memberid,omitempty"`
+	PublisherId string `json:"publisher_id,omitempty"`
 }
 
 type dmxBanner struct {
@@ -78,8 +97,17 @@ var CheckTopSizes = []dmxSize{
 func (adapter *DmxAdapter) MakeRequests(request *openrtb.BidRequest, req *adapters.ExtraRequestInfo) (reqsBidder []*adapters.RequestData, errs []error) {
 	var dmxImp dmxBidder
 	var imps []openrtb.Imp
+	//var userParams *dmxUser
 	if err := json.Unmarshal(request.Imp[0].Ext, &dmxImp); err != nil {
 		errs = append(errs, err)
+	}
+
+	fmt.Println(request.User)
+	if request.User != nil {
+		if request.User.BuyerUID != "" {
+			request.User.ID = request.User.BuyerUID
+
+		}
 	}
 
 	for _, inst := range request.Imp {
@@ -103,7 +131,6 @@ func (adapter *DmxAdapter) MakeRequests(request *openrtb.BidRequest, req *adapte
 		var intVal int8
 		intVal = 1
 		ins = openrtb.Imp{
-			TagID:  dmxImp.Bidder.TagId,
 			ID:     inst.ID,
 			Banner: &banner,
 			Ext:    inst.Ext,
@@ -115,15 +142,35 @@ func (adapter *DmxAdapter) MakeRequests(request *openrtb.BidRequest, req *adapte
 
 	request.Imp = imps
 
-	request.Site.Publisher = &openrtb.Publisher{ID: dmxImp.Bidder.MemberId}
+	if dmxImp.Bidder.PublisherId != "" {
+		request.Site.Publisher = &openrtb.Publisher{ID: dmxImp.Bidder.PublisherId}
+	} else {
+		if request.Site.Publisher != nil {
+			request.Site.Publisher.ID = adapter.publisherId
+		}
+	}
+
+	if request.App != nil {
+		request.Site = nil
+		request.App.Publisher = &openrtb.Publisher{ID: dmxImp.Bidder.PublisherId}
+	}
+
+
 	oJson, _ := json.Marshal(request)
 	headers := http.Header{}
 	headers.Add("Content-Type", "Application/json;charset=utf-8")
 	reqBidder := &adapters.RequestData{
 		Method:  "POST",
-		Uri:     "https://dmx-direct.districtm.io/b/v2", //adapter.endpoint,
+		Uri:     adapter.endpoint, //adapter.endpoint,
 		Body:    oJson,
 		Headers: headers,
+	}
+
+
+	if request.User == nil {
+		if request.App == nil {
+			return nil, []error{errors.New("no user Id only app send request")}
+		}
 	}
 
 	reqsBidder = append(reqsBidder, reqBidder)
@@ -193,4 +240,9 @@ func getMediaTypeForImp(impID string, imps []openrtb.Imp) (openrtb_ext.BidType, 
 	return "", &errortypes.BadInput{
 		Message: fmt.Sprintf("Failed to find impression \"%s\" ", impID),
 	}
+}
+
+
+func getCookieInfo(request *pbs.PBSRequest) {
+
 }
