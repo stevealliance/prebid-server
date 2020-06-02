@@ -8,5 +8,5 @@ import (
 )
 
 func NewDmxSyncer(temp *template.Template) usersync.Usersyncer {
-	return adapters.NewSyncer("dmx", 144, temp, adapters.SyncTypeIframe)
+	return adapters.NewSyncer("dmx", 144, temp, adapters.SyncTypeRedirect)
 }

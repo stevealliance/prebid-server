@@ -74,19 +74,24 @@ func ParsePBSCookieFromRequest(r *http.Request, cookie *config.HostCookie) *PBSC
 			parsed.TrySync(cookie.Family, hostCookie.Value)
 		}
 	}
+	fmt.Println(parsed)
 	return parsed
 }
 
 // ParsePBSCookie parses the UserSync cookie from a raw HTTP cookie.
 func ParsePBSCookie(uidCookie *http.Cookie) *PBSCookie {
 	pc := NewPBSCookie()
-
+	fmt.Println("try to get cookie")
+	fmt.Println(uidCookie.Value)
 	j, err := base64.URLEncoding.DecodeString(uidCookie.Value)
 	if err != nil {
 		// corrupted cookie; we should reset
 		return pc
 	}
 	err = json.Unmarshal(j, pc)
+	fmt.Println("check")
+	fmt.Println(pc)
+	fmt.Println(j)
 
 	// The error on Unmarshal here isn't terribly important.
 	// If the cookie has been corrupted, we should reset to an empty one anyway.
