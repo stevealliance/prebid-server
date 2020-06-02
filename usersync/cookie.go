@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"time"
@@ -73,19 +74,24 @@ func ParsePBSCookieFromRequest(r *http.Request, cookie *config.HostCookie) *PBSC
 			parsed.TrySync(cookie.Family, hostCookie.Value)
 		}
 	}
+	fmt.Println(parsed)
 	return parsed
 }
 
 // ParsePBSCookie parses the UserSync cookie from a raw HTTP cookie.
 func ParsePBSCookie(uidCookie *http.Cookie) *PBSCookie {
 	pc := NewPBSCookie()
-
+	fmt.Println("try to get cookie")
+	fmt.Println(uidCookie.Value)
 	j, err := base64.URLEncoding.DecodeString(uidCookie.Value)
 	if err != nil {
 		// corrupted cookie; we should reset
 		return pc
 	}
 	err = json.Unmarshal(j, pc)
+	fmt.Println("check")
+	fmt.Println(pc)
+	fmt.Println(j)
 
 	// The error on Unmarshal here isn't terribly important.
 	// If the cookie has been corrupted, we should reset to an empty one anyway.
@@ -177,6 +183,8 @@ func (cookie *PBSCookie) GetId(bidderName openrtb_ext.BidderName) (id string, ex
 // SetCookieOnResponse is a shortcut for "ToHTTPCookie(); cookie.setDomain(domain); setCookie(w, cookie)"
 func (cookie *PBSCookie) SetCookieOnResponse(w http.ResponseWriter, setSiteCookie bool, cfg *config.HostCookie, ttl time.Duration) {
 	httpCookie := cookie.ToHTTPCookie(ttl)
+	fmt.Println(cfg.Domain)
+
 	var domain string = cfg.Domain
 
 	if domain != "" {

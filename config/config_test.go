@@ -133,6 +133,8 @@ adapters:
     endpoint: http://facebook.com/pbs
     usersync_url: http://facebook.com/ortb/prebid-s2s
     platform_id: abcdefgh1234
+  dmx:
+	endpoint: http://
   ix:
     endpoint: http://ixtest.com/api
   rubicon:
